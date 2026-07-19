@@ -3,7 +3,7 @@ import json
 import logging
 import sys
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Annotated, Any, Optional, Union
 
 import yaml
 from pydantic import (
@@ -15,12 +15,15 @@ from pydantic import (
 )
 from pydantic_settings import (
     BaseSettings,
+    NoDecode,
     PydanticBaseSettingsSource,
     SettingsConfigDict,
 )
 from typing_extensions import Self
 
 _log = logging.getLogger(__name__)
+
+JsonDict = Annotated[dict[str, Any], NoDecode]
 
 
 class UvicornSettings(BaseSettings):
@@ -330,45 +333,45 @@ class DoclingServeSettings(BaseSettings):
     # VLM Pipeline Control
     default_vlm_preset: str = "granite_docling"
     allowed_vlm_presets: Optional[list[str]] = None
-    custom_vlm_presets: dict[str, Any] = Field(default_factory=dict)
+    custom_vlm_presets: JsonDict = Field(default_factory=dict)
     allowed_vlm_engines: Optional[list[str]] = None
 
     # Picture Description Control
     default_picture_description_preset: str = "smolvlm"
     allowed_picture_description_presets: Optional[list[str]] = None
-    custom_picture_description_presets: dict[str, Any] = Field(default_factory=dict)
+    custom_picture_description_presets: JsonDict = Field(default_factory=dict)
     allowed_picture_description_engines: Optional[list[str]] = None
 
     # Code/Formula Control
     default_code_formula_preset: str = "default"
     allowed_code_formula_presets: Optional[list[str]] = None
-    custom_code_formula_presets: dict[str, Any] = Field(default_factory=dict)
+    custom_code_formula_presets: JsonDict = Field(default_factory=dict)
     allowed_code_formula_engines: Optional[list[str]] = None
 
     # Picture Classification Control
     default_picture_classification_preset: str = "document_figure_classifier_v2"
     allowed_picture_classification_presets: Optional[list[str]] = None
-    custom_picture_classification_presets: dict[str, Any] = Field(default_factory=dict)
+    custom_picture_classification_presets: JsonDict = Field(default_factory=dict)
 
     # Table Structure Control
     default_table_structure_kind: str = "docling_tableformer"
     allowed_table_structure_kinds: Optional[list[str]] = None
     default_table_structure_preset: str = "tableformer_v1_accurate"
     allowed_table_structure_presets: Optional[list[str]] = None
-    custom_table_structure_presets: dict[str, Any] = Field(default_factory=dict)
+    custom_table_structure_presets: JsonDict = Field(default_factory=dict)
 
     # Layout Control
     default_layout_kind: str = "docling_layout_default"
     allowed_layout_kinds: Optional[list[str]] = None
     default_layout_preset: str = "docling_layout_default"
     allowed_layout_presets: Optional[list[str]] = None
-    custom_layout_presets: dict[str, Any] = Field(default_factory=dict)
+    custom_layout_presets: JsonDict = Field(default_factory=dict)
 
     # OCR Control
     default_ocr_preset: str = "auto"
     default_ocr_kind: str = "auto"
     allowed_ocr_presets: Optional[list[str]] = None
-    custom_ocr_presets: dict[str, Any] = Field(default_factory=dict)
+    custom_ocr_presets: JsonDict = Field(default_factory=dict)
     allowed_ocr_kinds: Optional[list[str]] = None
 
     # Source / Target Control
@@ -409,7 +412,7 @@ class DoclingServeSettings(BaseSettings):
     @classmethod
     def parse_dict_from_json(cls, v: Any) -> dict[str, Any]:
         """Parse dict parameters from JSON-serialized ENV variables."""
-        if v is None or v == "":
+        if v is None or (isinstance(v, str) and not v.strip()):
             return {}
         if isinstance(v, dict):
             return v

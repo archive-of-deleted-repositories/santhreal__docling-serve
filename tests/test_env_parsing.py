@@ -14,6 +14,14 @@ def test_dict_from_json(monkeypatch):
     assert settings.custom_vlm_presets == preset_config
 
 
+def test_whitespace_dict_env_defaults_to_empty(monkeypatch):
+    monkeypatch.setenv("DOCLING_SERVE_CUSTOM_VLM_PRESETS", " ")
+
+    settings = DoclingServeSettings()
+
+    assert settings.custom_vlm_presets == {}
+
+
 def test_list_from_json_array(monkeypatch):
     """Test parsing list from JSON array."""
     presets = ["preset1", "preset2"]
